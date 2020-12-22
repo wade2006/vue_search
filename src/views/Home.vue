@@ -59,14 +59,27 @@ export default {
         this.iptwidth="0"
       }
     },
+    check(i){
+       const num = (i<10)?("0"+i) : i;
+       return num;
+    }
   },
   created() {
     var _this = this; //声明一个变量指向Vue实例this，保证作用域一致
     this.timer = setInterval(function() {
-      _this.currentTime = //修改数据date
-        new Date().getHours() +
-        ":" +
-        new Date().getMinutes() 
+      // _this.currentTime = //修改数据date
+      //   new Date().getHours() +
+      //   ":" +
+      //   new Date().getMinutes() 
+      let hours=new Date().getHours();
+      let minutes=new Date().getMinutes();
+      if(hours<10){
+        hours="0"+hours
+      }
+      if(minutes<10){
+        minutes="0"+minutes
+      }
+      _this.currentTime=hours+":"+minutes
     }, 1000);
   },
 beforeDestroy() {
@@ -108,7 +121,7 @@ beforeDestroy() {
 .time {
   position: fixed;
   top: 150px;
-  left: 48.7%;
+  left: 48%;
   font-size: 30px;
   cursor: pointer;
   color: #fff;
