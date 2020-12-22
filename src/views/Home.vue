@@ -1,126 +1,198 @@
 <template>
   <div class="home">
+    <span class="time">{{currentTime}}</span>
     <div class="search_box">
-      <div class="search_x" @mousemove="moveevent">
-      <input type="text" v-on:keyup.enter="openlink(value)" v-model="value" class="search_input" placeholder="Type something to search" :style="{width:inputwidth+'px'}"/>
-      <span class="iconfont iconbtn" @click="openlink(value)" >&#xe6dc;</span>
+      <div class="search_x">
+        <input
+          type="text"
+          v-model="value"
+          class="search_ipt"
+          @keydown.enter="openlinks(value)"
+          @blur="narrow"
+          :style="{ width: iptwidth + 'px' }"
+        />
+        <span class="iconfont iconbut" @mousemove="x" @click="openlinks(value)">&#xe6dc;</span>
       </div>
-     <div class="item">
-       <ul class="search_list">
-      <li v-for="(item,index) in data" :key="index"  class="search_tags" @click="openlink(item.q)">
-        {{item.q}}
-      </li>
-    </ul>
-     </div>
+    </div>
+    <div class="drop-box">
+      <div class="list-box" :style="{ width: listwidth + 'px' }">
+        <ul class="search_list">
+          <li
+            v-for="(item, index) in data"
+            :key="index"
+            class="search_tags"
+            @click="openlinks(item.q)"
+          >
+            {{ item.q }}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+// @ is an alias to /src
+
 export default {
-  name: "Home",
   data() {
     return {
       value: "",
-      inputwidth:0,
-      data:[]
+      iptwidth: "0",
+      listwidth: "0",
+      data: {},
+      timer: "",//定义一个定时器的变量
+      currentTime:""
     };
   },
-  methods:{
-    moveevent(){
-      this.inputwidth=400
+  methods: {
+    x() {
+      this.iptwidth = "450";
     },
-    openlink(val){
-     if(val){
-        window.open(`https://www.baidu.com/s?wd=${val}`)
-     }
+    openlinks(val) {
+      if(val){
+        window.open(`https://www.baidu.com/s?wd=${val}`);
+      }
+    },
+    narrow(){
+      if(!this.value){
+        this.iptwidth="0"
+      }
+    },
+  },
+  created() {
+    var _this = this; //声明一个变量指向Vue实例this，保证作用域一致
+    this.timer = setInterval(function() {
+      _this.currentTime = //修改数据date
+        new Date().getHours() +
+        ":" +
+        new Date().getMinutes() 
+    }, 1000);
+  },
+beforeDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
     }
   },
   watch: {
     async value(val) {
-      if(val!=""){
+      if (val != "") {
         const data = await this.$jsonp(
-        `https://www.baidu.com/sugrec?prod=pc&cb=getData&wd=${val}`,
-        {
-          callbackQuery: "cb",
-          callbackName: "jsonp_func",
-        }
-      );
-      this.data=data.g;
-      this.inputwidth=400
-      }else{
-        this.data=[]
-      }
+          `https://www.baidu.com/sugrec?prod=pc&cb=getData&wd=${val}`,
+          {
+            callbackQuery: "cb",
+            callbackName: "jsonp_func",
+          }
+        );
+
+        this.data = data.g;
+        this.listwidth = "490";
+      } else this.listwidth = "0";
     },
   },
 };
 </script>
-<style >
-   .home{
-     width: 100%;
-     height: 100vh;
-     /* background: #2c3e50; */
-     background: #16a085;
-   }
-   .search_box{
-     position: absolute;
-     left: 50%;
-     top:30%;
-     transform: translate(-50%,-50%);
 
-   }
-   .search_x{
-     height: 30px;
-     background: white;
-     padding: 10px;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     border-radius: 30px;
-   }
-   .search_input{
-     border: none;
-     outline: none;
-     transition: 0.5s;
-     
-   }
-   .iconbtn{
-     height: 26px;
-     width: 26px;
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     font-size: 20px;
-     color: #16a085;
-   }
-   /* .search_x:hover .search_input{
-     width: 400px;
-   } */
-   .item{
-     position:absolute;
-     width: 410px;
-     margin-top: 10px;
-     transition: 0.5s;
-   }
-   .search_list{
-     width: 100%;
-     border-radius: 20px;
-     background: rgba(255, 255, 255, 0.4);
-     overflow: hidden;
-     font-size: small;
-   }
-   .search_tags{
-     list-style: none;
-     width: 100%;
-     height: 35px;
-     line-height: 35px;
-     color: rgba(255, 255, 255, 0.8);
-     /* text-indent: 15px; */
-     cursor: pointer;
-   }
-   .search_tags:hover{
-     text-indent: 10px;
-     color: rgba(255, 255, 255, 1);
+<style>
+.home {
+  width: 100%;
+  height: 100vh;
+  background-image: url("../assets/bg.jpg");
+  overflow: hidden;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  background-attachment: fixed;
+}
 
-   }
+.time {
+  position: fixed;
+  top: 150px;
+  left: 48.7%;
+  font-size: 30px;
+  cursor: pointer;
+  color: #fff;
+  transition: 0.3s;
+}
+.time:hover {
+  transform: scale(1.1);
+}
+.search_box {
+  position: fixed;
+  top: 235px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 40px;
+  height: 40px;
+  background: white;
+}
+/* .search_x {
+  position: fixed;
+  top: 235px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  height: 40px;
+  border-radius: 40px;
+} */
+.search_ipt {
+  border: none;
+  background: none;
+  outline: none;
+  float: left;
+  padding: 0;
+  color: black;
+  font-size: 16px;
+  transition: 0.4s;
+  line-height: 40px;
+  width: 450px;
+  margin-top: -1px;
+  text-align: center;
+  font-size: small;
+  font-weight: 400;
+}
+.iconbut {
+  color: #e84118;
+  float: right;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.iconbut:hover {
+    color: #40a9ff;
+    cursor: pointer;
+}
+.drop-box {
+  height: 360px;
+  position: fixed;
+  top: 450px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.search_list {
+  width: 100%;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.4);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-size: small;
+}
+.search_tags {
+  list-style: none;
+  width: 100%;
+  height: 35px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 35px;
+  text-indent: 30px;
+  cursor: pointer;
+}
+.search_tags:hover {
+  text-indent: 40px;
+  background: rgba(255, 255, 255, 0.4);
+}
 </style>
